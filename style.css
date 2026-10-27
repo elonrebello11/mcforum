@@ -1,0 +1,215 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #0b0b0b;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 20px;
+}
+
+#app {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #181818;
+    border: 3px solid #333;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+header {
+    background: #1f1f1f;
+    padding: 20px;
+    border-bottom: 3px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1, h2 {
+    color: #55ff55; /* Minecraft green */
+    margin: 0;
+    text-shadow: 2px 2px #000;
+}
+
+#zone-nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #121212;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #2a2a2a;
+}
+
+.nav-link {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.nav-link:hover {
+    background: #252525;
+    color: #55ff55;
+}
+
+.nav-link.active {
+    background: #2a2a2a;
+    color: #55ff55;
+    font-weight: bold;
+    border: 1px solid #444;
+}
+
+.hidden {
+    display: none !important;
+}
+
+button {
+    background: #2d2d2d;
+    color: #fff;
+    border: 2px solid #444;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+button:hover {
+    background: #3d3d3d;
+    border-color: #55ff55;
+}
+
+#auth-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #121212;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #333;
+}
+
+#user-name {
+    color: #ff5555;
+    font-weight: bold;
+}
+
+main {
+    padding: 20px;
+}
+
+#chat-section {
+    background: #141414;
+    border: 2px solid #282828;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+#chat-messages {
+    height: 380px;
+    background: #0f0f0f;
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: 12px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.message {
+    background: #1a1a1a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border-left: 3px solid #55ff55;
+    word-break: break-word;
+}
+
+.message .author {
+    color: #ff5555;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.message .timestamp {
+    font-size: 0.75rem;
+    color: #666;
+    float: right;
+}
+
+#chat-form {
+    display: flex;
+    gap: 10px;
+}
+
+#chat-input {
+    flex: 1;
+    background: #0d0d0d;
+    border: 2px solid #333;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+#chat-input:focus {
+    border-color: #55ff55;
+    outline: none;
+}
+
+/* Modal styling for Nickname Setup */
+#nickname-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #1c1c1c;
+    border: 3px solid #55ff55;
+    padding: 30px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    background: #111;
+    border: 2px solid #444;
+    color: #fff;
+    margin: 15px 0;
+    font-family: inherit;
+    border-radius: 4px;
+}
