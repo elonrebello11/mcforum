@@ -1,11 +1,10 @@
-// TODO: Replace with your actual Firebase project credentials from Project 1 settings
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBeElewrekuFkMMMV5n_4gKUs99rOrdBLw",
+  authDomain: "mc-forum-main-hub.firebaseapp.com",
+  projectId: "mc-forum-main-hub",
+  storageBucket: "mc-forum-main-hub.firebasestorage.app",
+  messagingSenderId: "838366816720",
+  appId: "1:838366816720:web:7fe8f2a460b513f0ef31d5"
 };
 
 // Initialize Firebase
