@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC Network - Main Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header & Smooth Navigation Bar -->
+        <header>
+            <div class="header-top">
+                <h1>🌐 MC Network Hub</h1>
+                <div id="auth-container">
+                    <button id="login-btn" class="hidden">Sign in with Google</button>
+                    <div id="user-info" class="hidden">
+                        <span id="user-name"></span>
+                        <button id="logout-btn">Sign Out</button>
+                    </div>
+                </div>
+            </div>
+            <nav id="zone-nav">
+                <a href="index.html" class="nav-link active">Main Hub</a>
+                <a href="seeds.html" class="nav-link">Seeds Zone</a>
+                <a href="builds.html" class="nav-link">Builds Zone</a>
+                <a href="redstone.html" class="nav-link">Redstone Zone</a>
+                <a href="mods.html" class="nav-link">Mods Zone</a>
+            </nav>
+        </header>
+
+        <!-- General Chat Zone -->
+        <main>
+            <section id="chat-section">
+                <h2>General Chat Zone</h2>
+                <div id="chat-messages"></div>
+                <form id="chat-form">
+                    <input type="text" id="chat-input" placeholder="Type a message... (Remember: game talk is safe!)" autocomplete="off" required>
+                    <button type="submit">Send</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <!-- Nickname Customization Modal (Shows on first login) -->
+    <div id="nickname-modal" class="hidden">
+        <div class="modal-content">
+            <h2>Choose Your Gamer Tag</h2>
+            <p>Set a custom nickname for the community chat:</p>
+            <form id="nickname-form">
+                <input type="text" id="nickname-input" placeholder="Enter nickname..." maxlength="20" required>
+                <button type="submit">Save Nickname</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (Compat version) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
