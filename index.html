@@ -5,59 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MC Network - Main Hub</title>
     <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div id="app">
-        <!-- Header & Smooth Navigation Bar -->
-        <header>
-            <div class="header-top">
-                <h1>🌐 MC Network Hub</h1>
-                <div id="auth-container">
-                    <button id="login-btn" class="hidden">Sign in with Google</button>
-                    <div id="user-info" class="hidden">
-                        <span id="user-name"></span>
-                        <button id="logout-btn">Sign Out</button>
+
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-left">
+            <button id="sidebarToggle" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+            <h2>MC Network Hub</h2>
+        </div>
+        <div class="nav-right">
+            <span id="userDisplay" style="display: none;"></span>
+            <button id="loginBtn" class="primary-btn"><i class="fa-brands fa-google"></i> Sign In</button>
+            <button id="logoutBtn" class="secondary-btn" style="display: none;">Sign Out</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Collapsible Sidebar Menu -->
+        <aside id="sidebar" class="sidebar">
+            <ul class="nav-links">
+                <li class="nav-item active" data-target="roomsView"><i class="fa-solid fa-comments"></i> Chat Rooms</li>
+                <li class="nav-item" data-target="privateView"><i class="fa-solid fa-lock"></i> Private Rooms</li>
+                <li class="nav-item" data-target="friendsView"><i class="fa-solid fa-user-group"></i> Friends</li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            
+            <!-- View 1: Public Chat Rooms -->
+            <section id="roomsView" class="view-section active">
+                <div class="rooms-header">
+                    <h3>Public Chat Rooms</h3>
+                    <div class="room-chips">
+                        <button class="room-chip active" data-room="global"># global-chat</button>
+                        <button class="room-chip" data-room="survival"># survival</button>
+                        <button class="room-chip" data-room="trading"># market-trading</button>
+                        <button class="room-chip" data-room="builds"># showcase</button>
                     </div>
                 </div>
-            </div>
-            <nav id="zone-nav">
-                <a href="index.html" class="nav-link active">Main Hub</a>
-                <a href="seeds.html" class="nav-link">Seeds Zone</a>
-                <a href="builds.html" class="nav-link">Builds Zone</a>
-                <a href="redstone.html" class="nav-link">Redstone Zone</a>
-                <a href="mods.html" class="nav-link">Mods Zone</a>
-            </nav>
-        </header>
-
-        <!-- General Chat Zone -->
-        <main>
-            <section id="chat-section">
-                <h2>General Chat Zone</h2>
-                <div id="chat-messages"></div>
-                <form id="chat-form">
-                    <input type="text" id="chat-input" placeholder="Type a message... (Remember: game talk is safe!)" autocomplete="off" required>
-                    <button type="submit">Send</button>
-                </form>
+                <div class="chat-wrapper">
+                    <div id="messageContainer" class="message-container"></div>
+                    <form id="chatForm" class="chat-form">
+                        <input type="text" id="messageInput" placeholder="Type a message..." required autocomplete="off">
+                        <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+                    </form>
+                </div>
             </section>
+
+            <!-- View 2: Private Rooms (Close Friends) -->
+            <section id="privateView" class="view-section">
+                <h3>Close Friends Private Rooms</h3>
+                <div class="create-room-box">
+                    <input type="text" id="privateRoomName" placeholder="Enter private room name...">
+                    <button id="createPrivateRoomBtn" class="primary-btn">Create Room</button>
+                </div>
+                <div id="privateRoomsList" class="rooms-grid"></div>
+            </section>
+
+            <!-- View 3: Friends Tab -->
+            <section id="friendsView" class="view-section">
+                <h3>Your Friends</h3>
+                <div class="add-friend-box">
+                    <input type="text" id="friendEmailInput" placeholder="Enter friend's email/username...">
+                    <button id="addFriendBtn" class="primary-btn">Add Friend</button>
+                </div>
+                <div id="friendsList" class="friends-list"></div>
+            </section>
+
         </main>
     </div>
 
-    <!-- Nickname Customization Modal (Shows on first login) -->
-    <div id="nickname-modal" class="hidden">
-        <div class="modal-content">
-            <h2>Choose Your Gamer Tag</h2>
-            <p>Set a custom nickname for the community chat:</p>
-            <form id="nickname-form">
-                <input type="text" id="nickname-input" placeholder="Enter nickname..." maxlength="20" required>
-                <button type="submit">Save Nickname</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Firebase SDKs (Compat version) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="app.js"></script>
+    <!-- Firebase SDKs -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
