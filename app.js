@@ -110,7 +110,7 @@ roomChips.forEach(chip => {
     });
 });
 
-// --- Real-time Chat Sync with Firestore ---
+// --- Real-time Chat Sync & Moderation ---
 function loadMessages(roomName) {
     if (unsubscribeChat) unsubscribeChat();
 
@@ -124,14 +124,43 @@ function loadMessages(roomName) {
         }
         snapshot.forEach((docSnap) => {
             const data = docSnap.data();
+            const msgId = docSnap.id;
             const msgDiv = document.createElement("div");
             msgDiv.classList.add("message");
+            
+            // Check if current user is the author or can moderate (you can specify your exact email/UID here for global mod powers)
+            const isAuthor = currentUser && data.uid === currentUser.uid;
+            const isModerator = currentUser && (currentUser.email === "elonrebello11@gmail.com" || isAuthor); // Replace with your admin email if needed
+
+            let deleteBtnHTML = "";
+            if (isModerator) {
+                deleteBtnHTML = `<button class="delete-msg-btn" data-id="${msgId}" title="Delete Message"><i class="fa-solid fa-trash"></i></button>`;
+            }
+
             msgDiv.innerHTML = `
-                <div class="author">${escapeHTML(data.name || "Anonymous")}</div>
+                <div class="message-header">
+                    <span class="author">${escapeHTML(data.name || "Anonymous")}</span>
+                    ${deleteBtnHTML}
+                </div>
                 <div class="text">${escapeHTML(data.text)}</div>
             `;
             messageContainer.appendChild(msgDiv);
         });
+
+        // Attach event listeners for delete buttons
+        document.querySelectorAll(".delete-msg-btn").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                const button = e.target.closest("button");
+                const messageId = button.dataset.id;
+                try {
+                    await deleteDoc(doc(db, `rooms/${currentRoom}/messages`, messageId));
+                } catch (err) {
+                    console.error("Error deleting message:", err);
+                    showPopup("Error", "Could not delete message.");
+                }
+            });
+        });
+
         messageContainer.scrollTop = messageContainer.scrollHeight;
     });
 }
