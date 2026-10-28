@@ -4,9 +4,409 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MC Network - Main Hub</title>
-    <link rel="stylesheet" href="/mcforum/style.css">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #181818;
+            --bg-surface: #1e1e1e;
+            --bg-elevated: #252525;
+            --border-color: #2d2d2d;
+            --accent: #5865F2;
+            --accent-hover: #4752c4;
+            --danger-btn: #ed4245;
+            --danger-hover: #c03537;
+            --text-main: #e0e0e0;
+            --text-muted: #888;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            height: 60px;
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-left h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-elevated);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-display {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            transition: transform var(--transition);
+            z-index: 50;
+            overflow-y: auto;
+            padding: 15px 10px;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-260px);
+            position: absolute;
+            height: 100%;
+        }
+
+        .sidebar-section {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding: 15px 10px 5px 10px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-links li, .nav-links a {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .nav-links li:hover, .nav-links li.active, .nav-links a:hover {
+            background: var(--bg-elevated);
+            color: var(--text-main);
+        }
+
+        /* Content Area & Views */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .view-section {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            height: 100%;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .view-section.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Chat Styling */
+        .rooms-header {
+            margin-bottom: 15px;
+        }
+
+        .room-chips {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .room-chip {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .room-chip.active, .room-chip:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .chat-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .message-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .placeholder-text {
+            color: var(--text-muted);
+            text-align: center;
+            margin: auto;
+        }
+
+        .message {
+            background: var(--bg-elevated);
+            padding: 10px 14px;
+            border-radius: 8px;
+            max-width: 75%;
+            word-break: break-word;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .message .author {
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .chat-form {
+            display: flex;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            gap: 10px;
+        }
+
+        .chat-form input, .create-room-box input, .add-friend-box input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: var(--text-main);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .chat-form input:focus, .create-room-box input:focus, .add-friend-box input:focus {
+            border-color: var(--accent);
+        }
+
+        .chat-form button, .primary-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .chat-form button:hover, .primary-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .secondary-btn {
+            background: var(--bg-elevated);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .secondary-btn:hover {
+            background: var(--border-color);
+        }
+
+        .danger-btn {
+            background: var(--danger-btn);
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .danger-btn:hover {
+            background: var(--danger-hover);
+        }
+
+        .create-room-box, .add-friend-box {
+            display: flex;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .friends-list, .rooms-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .friend-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 12px;
+            width: 360px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .modal-box h4 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .modal-box p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        /* Update Log Cards */
+        .update-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 18px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .update-badge {
+            background: rgba(88, 101, 242, 0.15);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .update-card h4 {
+            margin: 10px 0 6px 0;
+            font-size: 1rem;
+        }
+
+        .update-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+    </style>
 </head>
 <body>
 
@@ -111,9 +511,9 @@
             <section id="updatesView" class="view-section">
                 <h3>Network Update Log</h3>
                 <div class="update-card">
-                    <span class="update-badge">v1.4.0 (Latest)</span>
-                    <h4>All Zones Integrated & Advanced Friend Controls</h4>
-                    <p>Added Mods, Builds, and Redstone zones to the sidebar menu. Implemented user existence checks for friend requests and dynamic request cancellation.</p>
+                    <span class="update-badge">v1.5.0 (Supremely Optimized)</span>
+                    <h4>Embedded Styles & Bulletproof Deployment</h4>
+                    <p>All CSS is now self-contained in index.html to guarantee zero path errors on GitHub Pages. Added robust user validation, instant cancellation, and full multi-zone integration.</p>
                 </div>
             </section>
 
@@ -129,7 +529,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDK Script -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
