@@ -69,12 +69,11 @@ loginBtn.addEventListener("click", async () => {
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-        // Register user profile in Firestore for validation checks
         await addDoc(collection(db, "users"), {
             uid: user.uid,
             displayName: user.displayName,
             email: user.email
-        }).catch(() => {}); // catch duplicate silent errors if already registered
+        }).catch(() => {});
     } catch (error) {
         console.error("Login failed:", error);
     }
@@ -174,7 +173,6 @@ document.getElementById("addFriendBtn").addEventListener("click", async () => {
     }
 
     try {
-        // Verify if target user exists in database collection
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("displayName", "==", targetName));
         const querySnapshot = await getDocs(q);
@@ -184,7 +182,6 @@ document.getElementById("addFriendBtn").addEventListener("click", async () => {
             return;
         }
 
-        // Send friend request to Firestore
         await addDoc(collection(db, "friendRequests"), {
             senderUid: currentUser.uid,
             senderName: currentUser.displayName,
@@ -230,7 +227,6 @@ async function loadFriendRequests() {
             friendsList.appendChild(card);
         });
 
-        // Attach listeners to cancel buttons
         document.querySelectorAll(".cancel-req-btn").forEach(btn => {
             btn.addEventListener("click", async (e) => {
                 const reqId = e.target.dataset.id;
