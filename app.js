@@ -1,15 +1,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// TODO: Replace with your actual Firebase config keys
 const firebaseConfig = {
-  apiKey: "AIzaSyBeElewrekuFkMMMV5n_4gKUs99rOrdBLw",
-  authDomain: "mc-forum-main-hub.firebaseapp.com",
-  projectId: "mc-forum-main-hub",
-  storageBucket: "mc-forum-main-hub.firebasestorage.app",
-  messagingSenderId: "838366816720",
-  appId: "1:838366816720:web:7fe8f2a460b513f0ef31d5"
+    apiKey: "AIzaSyBeElewrekuFkMMMV5n_4gKUs99rOrdBLw",
+    authDomain: "mc-forum-main-hub.firebaseapp.com",
+    projectId: "mc-forum-main-hub",
+    storageBucket: "mc-forum-main-hub.firebasestorage.app",
+    messagingSenderId: "838366816720",
+    appId: "1:838366816720:web:7fe8f2a460b513f0ef31d5"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -91,7 +90,7 @@ roomChips.forEach(chip => {
 
 // --- Real-time Chat Sync with Firestore ---
 function loadMessages(roomName) {
-    if (unsubscribeChat) unsubscribeChat(); // Clear old listener
+    if (unsubscribeChat) unsubscribeChat();
 
     const q = query(collection(db, `rooms/${roomName}/messages`), orderBy("timestamp", "asc"));
     
