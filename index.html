@@ -13,11 +13,11 @@
     <!-- Top Navigation Bar -->
     <header class="navbar">
         <div class="nav-left">
-            <button id="sidebarToggle" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+            <button id="sidebarToggle" class="icon-btn" aria-label="Toggle Sidebar"><i class="fa-solid fa-bars"></i></button>
             <h2>MC Network Hub</h2>
         </div>
         <div class="nav-right">
-            <span id="userDisplay" style="display: none;"></span>
+            <span id="userDisplay" class="user-display" style="display: none;"></span>
             <button id="loginBtn" class="primary-btn"><i class="fa-brands fa-google"></i> Sign In</button>
             <button id="logoutBtn" class="secondary-btn" style="display: none;">Sign Out</button>
         </div>
@@ -26,10 +26,25 @@
     <div class="app-container">
         <!-- Collapsible Sidebar Menu -->
         <aside id="sidebar" class="sidebar">
+            <div class="sidebar-section">Community</div>
             <ul class="nav-links">
                 <li class="nav-item active" data-target="roomsView"><i class="fa-solid fa-comments"></i> Chat Rooms</li>
                 <li class="nav-item" data-target="privateView"><i class="fa-solid fa-lock"></i> Private Rooms</li>
                 <li class="nav-item" data-target="friendsView"><i class="fa-solid fa-user-group"></i> Friends</li>
+                <li class="nav-item" data-target="suggestionsView"><i class="fa-solid fa-lightbulb"></i> Suggestions</li>
+            </ul>
+
+            <div class="sidebar-section">Network Zones</div>
+            <ul class="nav-links">
+                <li><a href="https://elonrebello11.github.io/mcforum" class="external-link"><i class="fa-solid fa-house"></i> Main Hub</a></li>
+                <li><a href="https://elonrebello11.github.io/seedszone" class="external-link"><i class="fa-solid fa-seedling"></i> Seeds Zone</a></li>
+                <li><a href="https://elonrebello11.github.io/newszone" class="external-link"><i class="fa-solid fa-newspaper"></i> News Zone</a></li>
+                <li><a href="https://elonrebello11.github.io/clipsandmemes" class="external-link"><i class="fa-solid fa-clapperboard"></i> Clips & Memes</a></li>
+            </ul>
+
+            <div class="sidebar-section">System</div>
+            <ul class="nav-links">
+                <li class="nav-item" data-target="updatesView"><i class="fa-solid fa-clock-rotate-left"></i> Update Log</li>
             </ul>
         </aside>
 
@@ -48,19 +63,21 @@
                     </div>
                 </div>
                 <div class="chat-wrapper">
-                    <div id="messageContainer" class="message-container"></div>
+                    <div id="messageContainer" class="message-container">
+                        <p class="placeholder-text">Loading messages...</p>
+                    </div>
                     <form id="chatForm" class="chat-form">
                         <input type="text" id="messageInput" placeholder="Type a message..." required autocomplete="off">
-                        <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+                        <button type="submit" aria-label="Send Message"><i class="fa-solid fa-paper-plane"></i></button>
                     </form>
                 </div>
             </section>
 
-            <!-- View 2: Private Rooms (Close Friends) -->
+            <!-- View 2: Private Rooms -->
             <section id="privateView" class="view-section">
                 <h3>Close Friends Private Rooms</h3>
                 <div class="create-room-box">
-                    <input type="text" id="privateRoomName" placeholder="Enter private room name...">
+                    <input type="text" id="privateRoomName" placeholder="Enter private room name..." autocomplete="off">
                     <button id="createPrivateRoomBtn" class="primary-btn">Create Room</button>
                 </div>
                 <div id="privateRoomsList" class="rooms-grid"></div>
@@ -70,10 +87,36 @@
             <section id="friendsView" class="view-section">
                 <h3>Your Friends</h3>
                 <div class="add-friend-box">
-                    <input type="text" id="friendEmailInput" placeholder="Enter friend's email/username...">
+                    <input type="text" id="friendEmailInput" placeholder="Enter friend's email/username..." autocomplete="off">
                     <button id="addFriendBtn" class="primary-btn">Add Friend</button>
                 </div>
                 <div id="friendsList" class="friends-list"></div>
+            </section>
+
+            <!-- View 4: Suggestions -->
+            <section id="suggestionsView" class="view-section">
+                <h3>Community Suggestions</h3>
+                <p class="section-desc">Got an idea to improve the MC Network? Drop it below!</p>
+                <div class="create-room-box">
+                    <input type="text" id="suggestionInput" placeholder="Type your suggestion..." autocomplete="off">
+                    <button id="submitSuggestionBtn" class="primary-btn">Submit Idea</button>
+                </div>
+                <div id="suggestionsList" class="friends-list"></div>
+            </section>
+
+            <!-- View 5: Update Log -->
+            <section id="updatesView" class="view-section">
+                <h3>Network Update Log</h3>
+                <div class="update-card">
+                    <span class="update-badge">v1.2.0 (Latest)</span>
+                    <h4>Smooth Navigation & Multi-Zone Expansion</h4>
+                    <p>Added integrated links for Seeds Zone, News Zone, Clips & Memes, Suggestions, and this live Update Log. Optimized Firebase sync and UI performance.</p>
+                </div>
+                <div class="update-card">
+                    <span class="update-badge">v1.1.0</span>
+                    <h4>Real-time Chat & Firebase Auth</h4>
+                    <p>Implemented Google Sign-In, dynamic Firestore multi-room messaging, and dark-themed UI redesign.</p>
+                </div>
             </section>
 
         </main>
