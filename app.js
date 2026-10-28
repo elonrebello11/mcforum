@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -15,6 +15,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
+
+// PASTE YOUR GOOGLE AI STUDIO API KEY HERE:
+const GEMINI_API_KEY = "YOUR_AI_STUDIO_API_KEY";
 
 let currentUser = null;
 let currentRoom = "global";
@@ -64,16 +67,10 @@ navItems.forEach(item => {
     });
 });
 
-// --- Authentication & User Registry ---
+// --- Authentication (Redirect flow for GitHub Pages stability) ---
 loginBtn.addEventListener("click", async () => {
     try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        await addDoc(collection(db, "users"), {
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email
-        }).catch(() => {});
+        await signInWithRedirect(auth, provider);
     } catch (error) {
         console.error("Login failed:", error);
     }
@@ -81,6 +78,19 @@ loginBtn.addEventListener("click", async () => {
 
 logoutBtn.addEventListener("click", () => {
     signOut(auth);
+});
+
+getRedirectResult(auth).then(async (result) => {
+    if (result && result.user) {
+        const user = result.user;
+        await addDoc(collection(db, "users"), {
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email
+        }).catch(() => {});
+    }
+}).catch((error) => {
+    console.error("Redirect error:", error);
 });
 
 onAuthStateChanged(auth, (user) => {
@@ -110,7 +120,32 @@ roomChips.forEach(chip => {
     });
 });
 
-// --- Real-time Chat Sync & Moderation ---
+// --- Google AI Studio / Gemini Chat Moderation ---
+async function moderateMessageText(text) {
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_AI_STUDIO_API_KEY") {
+        return true; 
+    }
+
+    try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const prompt = `Analyze this chat message for extreme toxicity, hate speech, or harassment. Reply with ONLY "SAFE" if acceptable, or "BLOCKED" if toxic.\n\nMessage: "${text}"`;
+
+        const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+
+        const data = await res.json();
+        const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toUpperCase() || "SAFE";
+        return !resultText.includes("BLOCKED");
+    } catch (err) {
+        console.error("AI Moderation warning:", err);
+        return true; 
+    }
+}
+
+// --- Real-time Chat Sync & Moderation UI ---
 function loadMessages(roomName) {
     if (unsubscribeChat) unsubscribeChat();
 
@@ -128,9 +163,8 @@ function loadMessages(roomName) {
             const msgDiv = document.createElement("div");
             msgDiv.classList.add("message");
             
-            // Check if current user is the author or can moderate (you can specify your exact email/UID here for global mod powers)
             const isAuthor = currentUser && data.uid === currentUser.uid;
-            const isModerator = currentUser && (currentUser.email === "elonrebello11@gmail.com" || isAuthor); // Replace with your admin email if needed
+            const isModerator = currentUser && (currentUser.email === "elonrebello11@gmail.com" || isAuthor);
 
             let deleteBtnHTML = "";
             if (isModerator) {
@@ -147,7 +181,6 @@ function loadMessages(roomName) {
             messageContainer.appendChild(msgDiv);
         });
 
-        // Attach event listeners for delete buttons
         document.querySelectorAll(".delete-msg-btn").forEach(btn => {
             btn.addEventListener("click", async (e) => {
                 const button = e.target.closest("button");
@@ -173,6 +206,13 @@ chatForm.addEventListener("submit", async (e) => {
     }
     const text = messageInput.value.trim();
     if (!text) return;
+
+    // Run AI Studio Content Guard
+    const isClean = await moderateMessageText(text);
+    if (!isClean) {
+        showPopup("Message Blocked", "Your message was flagged as inappropriate by the network AI moderator.");
+        return;
+    }
 
     try {
         await addDoc(collection(db, `rooms/${currentRoom}/messages`), {
