@@ -406,6 +406,28 @@
             font-size: 0.9rem;
             line-height: 1.4;
         }
+        .message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.delete-msg-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.delete-msg-btn:hover {
+    color: var(--danger-btn);
+    background: rgba(237, 66, 69, 0.1);
+}
     </style>
 </head>
 <body>
