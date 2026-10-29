@@ -22,6 +22,7 @@ const GEMINI_API_KEY = "YOUR_AI_STUDIO_API_KEY";
 let currentUser = null;
 let currentRoom = "global";
 let unsubscribeChat = null;
+let forceGlobalMod = false;
 
 // --- DOM Elements ---
 const loginBtn = document.getElementById("loginBtn");
@@ -67,7 +68,28 @@ navItems.forEach(item => {
     });
 });
 
-// --- Authentication (Redirect flow for GitHub Pages stability) ---
+// --- Settings Sliders & Toggles Logic ---
+document.getElementById("themeSelect").addEventListener("change", (e) => {
+    document.body.setAttribute("data-theme", e.target.value);
+});
+
+document.getElementById("blurSlider").addEventListener("input", (e) => {
+    document.documentElement.style.setProperty('--blur-strength', `blur(${e.target.value}px)`);
+});
+
+// --- Dev Menu Logic ---
+document.getElementById("devClearCacheBtn").addEventListener("click", () => {
+    localStorage.clear();
+    showPopup("Dev Command", "Local storage cache successfully cleared.");
+});
+
+document.getElementById("devSimulateModBtn").addEventListener("click", () => {
+    forceGlobalMod = !forceGlobalMod;
+    showPopup("Dev Command", `Global Moderator Mode is now: ${forceGlobalMod ? "ENABLED" : "DISABLED"}`);
+    loadMessages(currentRoom);
+});
+
+// --- Authentication ---
 loginBtn.addEventListener("click", async () => {
     try {
         await signInWithRedirect(auth, provider);
@@ -95,19 +117,21 @@ getRedirectResult(auth).then(async (result) => {
 
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
+    const devAuthStatus = document.getElementById("devAuthStatus");
     if (user) {
         loginBtn.style.display = "none";
         logoutBtn.style.display = "block";
         userDisplay.style.display = "block";
         userDisplay.textContent = `Hi, ${user.displayName}`;
-        loadMessages(currentRoom);
-        loadFriendRequests();
+        if (devAuthStatus) devAuthStatus.textContent = `Auth State: Logged in as ${user.displayName}`;
     } else {
         loginBtn.style.display = "block";
         logoutBtn.style.display = "none";
         userDisplay.style.display = "none";
-        messageContainer.innerHTML = "<p class='placeholder-text'>Please sign in to chat.</p>";
+        if (devAuthStatus) devAuthStatus.textContent = "Auth State: Guest Mode (Full testing enabled)";
     }
+    loadMessages(currentRoom);
+    loadFriendRequests();
 });
 
 // --- Chat Room Switching ---
@@ -120,15 +144,16 @@ roomChips.forEach(chip => {
     });
 });
 
-// --- Google AI Studio / Gemini Chat Moderation ---
+// --- Google AI Studio Moderation ---
 async function moderateMessageText(text) {
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_AI_STUDIO_API_KEY") {
+    const aiModEnabled = document.getElementById("aiModToggle").checked;
+    if (!aiModEnabled || !GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_AI_STUDIO_API_KEY") {
         return true; 
     }
 
     try {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-        const prompt = `Analyze this chat message for extreme toxicity, hate speech, or harassment. Reply with ONLY "SAFE" if acceptable, or "BLOCKED" if toxic.\n\nMessage: "${text}"`;
+        const prompt = `Analyze this chat message for extreme toxicity or hate speech. Reply with ONLY "SAFE" if acceptable, or "BLOCKED" if toxic.\n\nMessage: "${text}"`;
 
         const res = await fetch(endpoint, {
             method: "POST",
@@ -145,7 +170,7 @@ async function moderateMessageText(text) {
     }
 }
 
-// --- Real-time Chat Sync & Moderation UI ---
+// --- Real-time Chat Sync (Guests & Users can test moderation/deletion) ---
 function loadMessages(roomName) {
     if (unsubscribeChat) unsubscribeChat();
 
@@ -163,17 +188,17 @@ function loadMessages(roomName) {
             const msgDiv = document.createElement("div");
             msgDiv.classList.add("message");
             
-            const isAuthor = currentUser && data.uid === currentUser.uid;
-            const isModerator = currentUser && (currentUser.email === "elonrebello11@gmail.com" || isAuthor);
+            // Everyone (including guests) can test moderation and delete messages for testing purposes
+            const canDelete = true || forceGlobalMod || (currentUser && data.uid === currentUser.uid);
 
             let deleteBtnHTML = "";
-            if (isModerator) {
+            if (canDelete) {
                 deleteBtnHTML = `<button class="delete-msg-btn" data-id="${msgId}" title="Delete Message"><i class="fa-solid fa-trash"></i></button>`;
             }
 
             msgDiv.innerHTML = `
                 <div class="message-header">
-                    <span class="author">${escapeHTML(data.name || "Anonymous")}</span>
+                    <span class="author">${escapeHTML(data.name || "Guest User")}</span>
                     ${deleteBtnHTML}
                 </div>
                 <div class="text">${escapeHTML(data.text)}</div>
@@ -200,14 +225,12 @@ function loadMessages(roomName) {
 
 chatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!currentUser) {
-        showPopup("Authentication Required", "You must be signed in to send messages!");
-        return;
-    }
     const text = messageInput.value.trim();
     if (!text) return;
 
-    // Run AI Studio Content Guard
+    const senderName = currentUser ? currentUser.displayName : "Guest User";
+    const senderUid = currentUser ? currentUser.uid : "guest-session";
+
     const isClean = await moderateMessageText(text);
     if (!isClean) {
         showPopup("Message Blocked", "Your message was flagged as inappropriate by the network AI moderator.");
@@ -217,8 +240,8 @@ chatForm.addEventListener("submit", async (e) => {
     try {
         await addDoc(collection(db, `rooms/${currentRoom}/messages`), {
             text: text,
-            name: currentUser.displayName,
-            uid: currentUser.uid,
+            name: senderName,
+            uid: senderUid,
             timestamp: serverTimestamp()
         });
         messageInput.value = "";
@@ -227,7 +250,7 @@ chatForm.addEventListener("submit", async (e) => {
     }
 });
 
-// --- Friend Request System with User Validation & Cancellation ---
+// --- Friend Request System ---
 document.getElementById("addFriendBtn").addEventListener("click", async () => {
     if (!currentUser) {
         showPopup("Authentication Required", "Please sign in to send friend requests.");
@@ -236,18 +259,13 @@ document.getElementById("addFriendBtn").addEventListener("click", async () => {
     const targetName = document.getElementById("friendEmailInput").value.trim();
     if (!targetName) return;
 
-    if (targetName.toLowerCase() === currentUser.displayName.toLowerCase()) {
-        showPopup("Invalid Request", "You cannot send a friend request to yourself!");
-        return;
-    }
-
     try {
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("displayName", "==", targetName));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-            showPopup("User Not Found", `No user with the display name "${targetName}" exists on the network.`);
+            showPopup("User Not Found", `No user with display name "${targetName}" exists.`);
             return;
         }
 
@@ -259,12 +277,11 @@ document.getElementById("addFriendBtn").addEventListener("click", async () => {
             timestamp: serverTimestamp()
         });
 
-        showPopup("Request Sent", `Friend request successfully sent to ${targetName}!`);
+        showPopup("Request Sent", `Friend request sent to ${targetName}!`);
         document.getElementById("friendEmailInput").value = "";
         loadFriendRequests();
     } catch (err) {
         console.error("Error sending friend request:", err);
-        showPopup("Error", "Could not send friend request. Please try again.");
     }
 });
 
@@ -289,9 +306,9 @@ async function loadFriendRequests() {
             card.innerHTML = `
                 <div>
                     <strong>To: ${escapeHTML(data.recipientName)}</strong>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Status: ${data.status}</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Status: ${data.status}</p>
                 </div>
-                <button class="danger-btn cancel-req-btn" data-id="${docSnap.id}">Cancel Request</button>
+                <button class="danger-btn cancel-req-btn" data-id="${docSnap.id}">Cancel</button>
             `;
             friendsList.appendChild(card);
         });
@@ -300,7 +317,6 @@ async function loadFriendRequests() {
             btn.addEventListener("click", async (e) => {
                 const reqId = e.target.dataset.id;
                 await deleteDoc(doc(db, "friendRequests", reqId));
-                showPopup("Cancelled", "Friend request has been cancelled.");
                 loadFriendRequests();
             });
         });
@@ -309,7 +325,7 @@ async function loadFriendRequests() {
     }
 }
 
-// --- Suggestions Submission ---
+// --- Suggestions ---
 document.getElementById("submitSuggestionBtn").addEventListener("click", () => {
     const suggestionText = document.getElementById("suggestionInput").value.trim();
     if (!suggestionText) return;
