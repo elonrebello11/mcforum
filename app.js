@@ -117,8 +117,6 @@ onAuthStateChanged(auth, (user) => {
     const devNavTrigger = document.getElementById("devNavTrigger");
     const navAvatarImg = document.getElementById("navAvatarImg");
     const profileAvatarImg = document.getElementById("profileAvatarImg");
-    const suggestionAuthWarning = document.getElementById("suggestionAuthWarning");
-    const suggestionFormContainer = document.getElementById("suggestionFormContainer");
     const newsUploadContainer = document.getElementById("newsUploadContainer");
 
     if (user) {
@@ -134,9 +132,6 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById("profileAvatarName").textContent = user.displayName;
         document.getElementById("profileRole").textContent = user.email === OWNER_EMAIL ? "Network Owner" : "Verified Member";
 
-        if (suggestionAuthWarning) suggestionAuthWarning.style.display = "none";
-        if (suggestionFormContainer) suggestionFormContainer.style.display = "block";
-
         if (user.email === OWNER_EMAIL) {
             if (devNavTrigger) devNavTrigger.style.display = "flex";
             if (newsUploadContainer) newsUploadContainer.style.display = "block";
@@ -146,8 +141,6 @@ onAuthStateChanged(auth, (user) => {
         logoutBtn.style.display = "none";
         userDisplay.style.display = "none";
         if (navAvatarImg) navAvatarImg.style.display = "none";
-        if (suggestionAuthWarning) suggestionAuthWarning.style.display = "block";
-        if (suggestionFormContainer) suggestionFormContainer.style.display = "none";
         if (devNavTrigger) devNavTrigger.style.display = "none";
         if (newsUploadContainer) newsUploadContainer.style.display = "none";
     }
@@ -155,7 +148,7 @@ onAuthStateChanged(auth, (user) => {
     loadNewsFeed();
 });
 
-// --- Chat Rooms & Message Handling ---
+// --- Integrated Zone / Chat Rooms Handler ---
 roomChips.forEach(chip => {
     chip.addEventListener("click", () => {
         roomChips.forEach(c => c.classList.remove("active"));
@@ -171,7 +164,7 @@ function loadMessages(roomName) {
     
     unsubscribeChat = onSnapshot(q, (snapshot) => {
         if (snapshot.empty) {
-            messageContainer.innerHTML = "<p class='placeholder-text'>No messages here yet.</p>";
+            messageContainer.innerHTML = `<p class='placeholder-text'>No messages in #${roomName} yet. Start the conversation!</p>`;
             return;
         }
 
@@ -195,7 +188,7 @@ function loadMessages(roomName) {
             html += `
                 <div class="message" id="msg-${msgId}">
                     <div class="message-header">
-                        <span class="author">${escapeHTML(data.name || "Guest")}</span>
+                        <span class="author">${escapeHTML(data.name || "Guest User")}</span>
                         ${actionsHTML}
                     </div>
                     <div class="text message-body">${data.text.includes("<img") ? data.text : escapeHTML(data.text)}</div>
@@ -266,36 +259,6 @@ chatForm.addEventListener("submit", async (e) => {
     await sendChatMessage(text);
 });
 
-// --- Unified Zones Handler ---
-const subZoneContainer = document.getElementById("subZoneContainer");
-const subZoneTitle = document.getElementById("subZoneTitle");
-const subZoneContent = document.getElementById("subZoneContent");
-
-document.querySelectorAll(".zone-trigger").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-        const zoneType = e.target.dataset.zone;
-        subZoneContainer.style.display = "block";
-        
-        if (zoneType === "seeds") {
-            subZoneTitle.textContent = "Seeds Zone";
-            subZoneContent.innerHTML = "<p>Featured Seed: <strong>#2468047326</strong> (Multi-blacksmith plains village & desert temple spawns).</p>";
-        } else if (zoneType === "clips") {
-            subZoneTitle.textContent = "Clips & Memes";
-            subZoneContent.innerHTML = "<p>Share your viral clips and screenshots directly in the chat rooms!</p>";
-        } else if (zoneType === "mods") {
-            subZoneTitle.textContent = "Mods Zone";
-            subZoneContent.innerHTML = "<p>Verified shaders and optimization packs ready.</p>";
-        } else if (zoneType === "builds") {
-            subZoneTitle.textContent = "Builds Zone";
-            subZoneContent.innerHTML = "<p>Explore architectural blueprints and community designs.</p>";
-        }
-    });
-});
-
-document.getElementById("closeSubZoneBtn").addEventListener("click", () => {
-    subZoneContainer.style.display = "none";
-});
-
 // --- News Feed ---
 document.getElementById("publishNewsBtn")?.addEventListener("click", async () => {
     if (!currentUser || currentUser.email !== OWNER_EMAIL) return;
@@ -337,11 +300,11 @@ async function loadNewsFeed() {
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
             const card = document.createElement("div");
-            card.className = "friend-card";
+            card.className = "settings-card";
             card.innerHTML = `
                 <div>
-                    <h4 style="color:var(--accent); margin-bottom:4px;">${escapeHTML(data.title)}</h4>
-                    <p style="font-size:0.9rem; color:var(--text-main);">${escapeHTML(data.content)}</p>
+                    <h4 style="color:var(--accent); margin-bottom:6px;">${escapeHTML(data.title)}</h4>
+                    <p style="font-size:0.9rem; color:var(--text-main); margin-bottom:8px;">${escapeHTML(data.content)}</p>
                     <span style="font-size:0.75rem; color:var(--text-muted);">Published by ${escapeHTML(data.author)}</span>
                 </div>
             `;
