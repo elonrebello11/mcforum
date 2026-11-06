@@ -6,7 +6,7 @@
     <title>MC Network Hub - Elite Studio Edition</title>
     <!-- FontAwesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-base: #060608;
@@ -351,18 +351,6 @@
         }
         .secondary-btn:hover { background: var(--border-glass); }
 
-        .danger-btn {
-            background: rgba(244, 63, 94, 0.15);
-            color: var(--danger);
-            border: 1px solid rgba(244, 63, 94, 0.3);
-            padding: 8px 14px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-        .danger-btn:hover { background: var(--danger); color: #fff; }
-
         /* Grid Layouts & Cards */
         .settings-grid, .zones-grid {
             display: grid;
@@ -385,20 +373,6 @@
         .setting-row { display: flex; justify-content: space-between; align-items: center; }
         .setting-row label { font-size: 0.9rem; color: var(--text-muted); }
 
-        /* Toggles & Sliders */
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--bg-elevated); border: 1px solid var(--border-glass); transition: .3s; border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
-            background-color: white; transition: .3s; border-radius: 50%;
-        }
-        input:checked + .slider { background-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-        input:checked + .slider:before { transform: translateX(24px); }
-
         input[type=range] {
             -webkit-appearance: none; width: 150px; background: var(--bg-elevated); height: 6px; border-radius: 3px; outline: none;
         }
@@ -406,7 +380,7 @@
             -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 10px var(--accent-glow);
         }
 
-        /* GIF Picker Modal / Klippy Drawer */
+        /* GIF Picker Modal */
         .gif-picker-modal {
             position: absolute; bottom: 85px; left: 20px; width: 320px; height: 350px;
             background: var(--bg-surface); backdrop-filter: var(--blur-strength);
@@ -520,8 +494,7 @@
             <!-- 2. Global Search View -->
             <section id="searchView" class="view-section">
                 <h3>Global Network Search</h3>
-                <p class="section-desc" style="color:var(--text-muted); margin-bottom:20px;">Search across live chat messages, users, and zones instantly.</p>
-                <div class="create-room-box" style="display:flex; gap:12px; margin-bottom:20px;">
+                <div class="create-room-box" style="display:flex; gap:12px; margin:20px 0;">
                     <input type="text" id="searchInput" placeholder="Type keywords to search..." autocomplete="off">
                     <button id="executeSearchBtn" class="primary-btn">Search</button>
                 </div>
@@ -538,16 +511,15 @@
                 <div id="friendsList" class="friends-list"></div>
             </section>
 
-            <!-- 4. Suggestions (Strictly for Logged-In Users) -->
+            <!-- 4. Suggestions View -->
             <section id="suggestionsView" class="view-section">
                 <h3>Community Suggestions</h3>
-                <p class="section-desc" style="color:var(--text-muted); margin-bottom:20px;">Logged-in members can submit feature ideas.</p>
                 <div id="suggestionAuthWarning" style="background:var(--bg-surface); border:1px solid var(--border-glass); padding:20px; border-radius:12px; text-align:center;">
                     <p style="color:var(--danger); font-weight:600;">Authentication Required</p>
-                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:6px;">You must be signed in with Google to submit or view suggestions.</p>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:6px;">Sign in with Google to submit or view suggestions.</p>
                 </div>
-                <div id="suggestionFormContainer" style="display: none;">
-                    <div class="create-room-box" style="display:flex; gap:12px; margin-bottom:20px;">
+                <div id="suggestionFormContainer" style="display: none; margin-bottom:20px;">
+                    <div class="create-room-box" style="display:flex; gap:12px;">
                         <input type="text" id="suggestionInput" placeholder="Type your suggestion..." autocomplete="off">
                         <button id="submitSuggestionBtn" class="primary-btn">Submit Idea</button>
                     </div>
@@ -555,52 +527,58 @@
                 <div id="suggestionsList" class="friends-list"></div>
             </section>
 
-            <!-- 5. All Zones Hub (Storage Handled via State) -->
+            <!-- 5. All Zones Hub -->
             <section id="zonesView" class="view-section">
                 <h3>Network Zones Directory</h3>
-                <p class="section-desc" style="color:var(--text-muted); margin-bottom:20px;">Access all dedicated network areas directly from this single client container.</p>
+                <p class="section-desc" style="color:var(--text-muted); margin-bottom:20px;">All zones bundled in this single web container.</p>
                 <div class="zones-grid">
                     <div class="zone-card">
                         <h4><i class="fa-solid fa-seedling" style="color:var(--accent);"></i> Seeds Zone</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted);">Discover top Minecraft seed codes and coordinates.</p>
-                        <a href="https://elonrebello11.github.io/seedszone" target="_blank" class="secondary-btn" style="text-align:center; text-decoration:none;">Open Zone</a>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Top seed codes and coordinates.</p>
+                        <button class="secondary-btn zone-trigger" data-zone="seeds">Open Zone</button>
                     </div>
                     <div class="zone-card">
                         <h4><i class="fa-solid fa-clapperboard" style="color:var(--accent);"></i> Clips & Memes</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted);">Share viral clips, screenshots, and community memes.</p>
-                        <a href="https://elonrebello11.github.io/clipsandmemes" target="_blank" class="secondary-btn" style="text-align:center; text-decoration:none;">Open Zone</a>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Viral clips and memes.</p>
+                        <button class="secondary-btn zone-trigger" data-zone="clips">Open Zone</button>
                     </div>
                     <div class="zone-card">
                         <h4><i class="fa-solid fa-puzzle-piece" style="color:var(--accent);"></i> Mods Zone</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted);">Verified shaders, resource packs, and mod tools.</p>
-                        <a href="https://elonrebello11.github.io/modszone" target="_blank" class="secondary-btn" style="text-align:center; text-decoration:none;">Open Zone</a>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Verified shaders and resource packs.</p>
+                        <button class="secondary-btn zone-trigger" data-zone="mods">Open Zone</button>
                     </div>
                     <div class="zone-card">
                         <h4><i class="fa-solid fa-hammer" style="color:var(--accent);"></i> Builds Zone</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted);">Architectural blue prints and structural showcases.</p>
-                        <a href="https://elonrebello11.github.io/buildszone" target="_blank" class="secondary-btn" style="text-align:center; text-decoration:none;">Open Zone</a>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Architectural blueprints.</p>
+                        <button class="secondary-btn zone-trigger" data-zone="builds">Open Zone</button>
                     </div>
+                </div>
+                <div id="subZoneContainer" style="margin-top: 30px; display: none; background: var(--bg-surface); border: 1px solid var(--border-glass); padding: 24px; border-radius: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4 id="subZoneTitle" style="color: var(--accent);">Zone Content</h4>
+                        <button id="closeSubZoneBtn" class="msg-action-btn"><i class="fa-solid fa-xmark"></i> Close</button>
+                    </div>
+                    <div id="subZoneContent"></div>
                 </div>
             </section>
 
-            <!-- 6. News Zone (Restricted Uploads to Owner) -->
+            <!-- 6. News Zone -->
             <section id="newsZoneView" class="view-section">
                 <h3>Official News Zone</h3>
-                <p class="section-desc" style="color:var(--text-muted); margin-bottom:20px;">Official network updates and bulletins published directly by the owner.</p>
                 <div id="newsUploadContainer" style="display: none; margin-bottom:20px;">
                     <div class="settings-card">
                         <h4>Publish News Bulletin</h4>
                         <input type="text" id="newsTitleInput" placeholder="Headline title..." style="margin-bottom:10px;">
-                        <input type="text" id="newsContentInput" placeholder="Bulletin announcement content..." style="margin-bottom:10px;">
+                        <input type="text" id="newsContentInput" placeholder="Announcement content..." style="margin-bottom:10px;">
                         <button id="publishNewsBtn" class="primary-btn">Publish Announcement</button>
                     </div>
                 </div>
                 <div id="newsListContainer" class="friends-list"></div>
             </section>
 
-            <!-- 7. Settings (Themes, Fonts, Blur Sliders & AI Mod Toggle) -->
+            <!-- 7. Settings -->
             <section id="settingsView" class="view-section">
-                <h3>Client Settings & Customization</h3>
+                <h3>Client Settings</h3>
                 <div class="settings-grid">
                     <div class="settings-card">
                         <h4>Themes & Styling</h4>
@@ -614,24 +592,8 @@
                             </select>
                         </div>
                         <div class="setting-row">
-                            <label>Typography Font</label>
-                            <select id="fontSelect" style="background:var(--bg-base); color:var(--text-main); border:1px solid var(--border-glass); padding:8px; border-radius:8px;">
-                                <option value="'Inter', sans-serif">Inter (Clean)</option>
-                                <option value="'Outfit', sans-serif">Outfit (Modern)</option>
-                                <option value="'JetBrains Mono', monospace">JetBrains Mono (Code)</option>
-                                <option value="'Press Start 2P', cursive">Pixel Arcade</option>
-                            </select>
-                        </div>
-                        <div class="setting-row">
                             <label>Glassmorphism Blur</label>
                             <input type="range" id="blurSlider" min="0" max="40" value="24">
-                        </div>
-                    </div>
-                    <div class="settings-card">
-                        <h4>Security & AI Guard</h4>
-                        <div class="setting-row">
-                            <label>Google AI Studio Auto-Mod</label>
-                            <label class="switch"><input type="checkbox" id="aiModToggle" checked><span class="slider"></span></label>
                         </div>
                     </div>
                 </div>
@@ -646,11 +608,6 @@
                         <h4 id="profileAvatarName">Guest User</h4>
                         <p id="profileRole" style="font-size: 0.85rem; color: var(--accent);">Standard Visitor</p>
                     </div>
-                    <div class="settings-card">
-                        <h4>Identity Details</h4>
-                        <div class="setting-row"><label>Display Name</label><span id="profileDisplayName" style="font-weight:600;">Not signed in</span></div>
-                        <div class="setting-row"><label>Account Email</label><span id="profileEmail" style="font-weight:600;">N/A</span></div>
-                    </div>
                 </div>
             </section>
 
@@ -661,7 +618,6 @@
                     <div class="settings-card">
                         <h4>Cluster Diagnostics</h4>
                         <p id="devAuthStatus" style="font-size:0.85rem; color:var(--text-muted);">Auth State: Initializing...</p>
-                        <button id="devClearCacheBtn" class="secondary-btn" style="margin-top:10px;">Clear Local Storage</button>
                     </div>
                 </div>
             </section>
@@ -678,7 +634,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK Script -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
